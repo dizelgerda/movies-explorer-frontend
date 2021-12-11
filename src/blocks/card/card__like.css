@@ -1,0 +1,32 @@
+.card__like {
+  width: 14px;
+  height: 12px;
+
+  padding: 0;
+  margin: 0;
+
+  border: 0;
+
+  cursor: pointer;
+
+  background: none;
+  background-image: url(../../images/like-of.svg);
+  background-repeat: no-repeat;
+
+  transition: opacity 0.5s ease;
+}
+
+.card__like:hover {
+  opacity: 70%;
+}
+
+.card__like_active {
+  background-image: url(../../images/like-on.svg);
+}
+
+@media (max-width: 400px) {
+  .card__like {
+    grid-row: 1/-1;
+    grid-column: 2/-1;
+  }
+}
