@@ -6,3 +6,5 @@
 @import url(../../blocks/profile/profile__text.css);
 @import url(../../blocks/profile/profile__menu.css);
 @import url(../../blocks/profile/profile__button.css);
+@import url(../../blocks/profile/profile__error.css);
+@import url(../../blocks/profile/profile__input.css);
