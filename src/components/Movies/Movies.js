@@ -11,18 +11,40 @@ const baseUrl = 'https://api.nomoreparties.co';
 
 function Movies({ onError }) {
   const [results, setResults] = useState(null);
+  const [films, setFilms] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [params, setParams] = useState(null);
 
   useEffect(() => {
     const SearchHistory = localStorage.getItem('SearchHistory');
     if (SearchHistory) {
-      checkSaved(JSON.parse(SearchHistory));
+      const savedSearch = JSON.parse(SearchHistory)
+      console.log(savedSearch)
+      setParams(savedSearch.params);
+      setFilms(savedSearch.data);
+      changeIsShort(savedSearch.params, savedSearch.data);
     }
   }, [])
 
-  function saveResults(data) {
+  function changeIsShort(params, Films = films) {
+    setIsLoading(true)
+    if (Films) {
+      setResults(null);
+      const { isShort = false } = params;
+      const data = Films.filter(({ duration }) => {
+        if (isShort && duration > 40) return false;
+        return true;
+      });
+      saveResults(Films, params);
+      checkSaved(data, params);
+    }
+    setIsLoading(false)
+  }
+
+  function saveResults(data, params) {
     localStorage.removeItem('SearchHistory')
-    localStorage.setItem('SearchHistory', JSON.stringify(data));
+    console.log(params)
+    localStorage.setItem('SearchHistory', JSON.stringify({data, params}));
   }
 
   function findInName(name, request) {
@@ -36,7 +58,7 @@ function Movies({ onError }) {
     return name.indexOf(request) !== -1
   }
 
-  function checkSaved(films) {
+  function checkSaved(films, params) {
     MainApi.getMovies()
       .then((savedMovies) => {
         const data = films.map((item) => {
@@ -48,13 +70,13 @@ function Movies({ onError }) {
           return item;
         });
         setResults(data);
-        saveResults(data);
       })
-      .catch((err) => err.then(({ message }) => onError(message)))
+      .catch((err) => err.then(({ message }) => onError(message)));
   }
 
   async function handleSearch(params) {
     setIsLoading(true);
+    setParams(params);
     setResults(null);
 
     let films
@@ -67,18 +89,22 @@ function Movies({ onError }) {
 
     const { request, isShort } = params;
 
-    const data = films.filter(({ duration, nameRU, nameEN }) => {
-
-      if (isShort && duration > 40) return false;
+    let data = films.filter(({ duration, nameRU, nameEN }) => {
 
       if (findInName(nameRU, request)) return true;
-      if (findInName(nameEN, request)) return true;
+      else if (findInName(nameEN, request)) return true;
 
       return false;
     });
+    setFilms(data);
+    saveResults(data, params);
+    data = data.filter(({ duration }) => {
+      if (isShort && duration > 40) return false;
+      return true;
+    });
 
-    checkSaved(data);
-    setIsLoading(false);
+    checkSaved(data, params);
+    setIsLoading(false)
   }
 
   function addMovie(data) {
@@ -86,7 +112,7 @@ function Movies({ onError }) {
     MainApi.addMovie({ country, director, duration, year, description, image: `${baseUrl}${url}`, trailerLink, movieId, nameRU, nameEN })
       .then((movie) => {
         if (movie) {
-          checkSaved(results)
+          checkSaved(results, params)
         }
       })
       .catch((err) => err.then(({ message }) => onError(message)))
@@ -96,7 +122,7 @@ function Movies({ onError }) {
     MainApi.deleteMovie(id)
       .then((movie) => {
         if (movie) {
-          checkSaved(results)
+          checkSaved(results, params)
         }
       })
       .catch((err) => err.then(({ message }) => onError(message)))
@@ -104,7 +130,7 @@ function Movies({ onError }) {
 
   return (
     <>
-      <SearchForm onSubmit={handleSearch} />
+      <SearchForm onSubmit={handleSearch} onChecked={changeIsShort} />
       {isLoading ? (<Preloader />) : null}
       {results && !isLoading ? (<MoviesCardList cards={results} onDelete={deleteMovie} onAdd={addMovie} />) : null}
     </>

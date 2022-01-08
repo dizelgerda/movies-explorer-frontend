@@ -91,5 +91,6 @@ class Api {
 }
 
 export const MainApi = new Api({
-  baseUrl: 'http://localhost:3000'
+  baseUrl: 'http://localhost:3000',
+  // baseUrl: 'https://api.kovalenko.diploma.nomoredomains.rocks'
 });

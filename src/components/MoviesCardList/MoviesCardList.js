@@ -6,6 +6,7 @@ import MoviesCard from '../MoviesCard/MoviesCard';
 let step = window.screen.width > 480 ? 7 : 5;
 
 function MoviesCardList({ cards, onDelete, onAdd }) {
+  console.log(cards)
   const [showCards, setShowCards] = useState(cards.slice(0, step))
   const [position, setPosition] = useState(step);
 
@@ -28,7 +29,7 @@ function MoviesCardList({ cards, onDelete, onAdd }) {
   return (
     <section className="movies-list">
       <div className="movies-list__container">
-        {showCards.length
+        {cards.length
           ? showCards.map((item) => (<MoviesCard key={item.id ?? item.movieId} movie={item} onDelete={onDelete} onAdd={onAdd} />))
           : (<p className="movies-list__alert" >
             Ничего не найдено

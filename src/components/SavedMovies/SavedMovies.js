@@ -7,11 +7,28 @@ import { MainApi } from '../../utils/MainApi';
 
 function SavedMovies({ onError }) {
   const [results, setResults] = useState(null);
-  const [savedMovies, setSavedMovies] = useState(null);
+  const [films, setFilms] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     getSavedMovies();
   }, [])
+
+  useEffect(() => console.log(results))
+
+  function changeIsShort(params, Films = films) {
+    setIsLoading(true)
+    setResults(null);
+    if (Films) {
+      const { isShort = false } = params;
+      const data = Films.filter(({ duration }) => {
+        if (isShort && duration > 40) return false;
+        return true;
+      });
+      setResults(data)
+    }
+    setTimeout(() => setIsLoading(false), 500)
+  }
 
   function getSavedMovies() {
     setResults(null);
@@ -19,6 +36,7 @@ function SavedMovies({ onError }) {
     .then((movies) => {
       if (movies.length) {
         setResults(movies);
+        setFilms(movies)
       }
     })
     .catch((err) => err.then(({ message }) => onError(message)));
@@ -44,21 +62,22 @@ function SavedMovies({ onError }) {
   function handleSearch(params) {
     const { request, isShort } = params;
 
-    setResults(savedMovies.filter(({ duration, nameRU, nameEN }) => {
-
-      if (isShort && duration > 40) return false;
+    let data = films.filter(({ duration, nameRU, nameEN }) => {
 
       if (findInName(nameRU, request)) return true;
-      if (findInName(nameEN, request)) return true;
+      else if (findInName(nameEN, request)) return true;
 
       return false;
-    }));
+    });
+    setFilms(data)
+    changeIsShort(params, data);
+
   }
 
   return (
     <>
-      <SearchForm onSubmit={handleSearch} />
-      {results ? (<MoviesCardList cards={results} onDelete={deleteMovie} />) : null}
+      <SearchForm onSubmit={handleSearch} onChecked={changeIsShort}/>
+      {results && !isLoading ? (<MoviesCardList cards={results} onDelete={deleteMovie} />) : null}
     </>
   );
 }

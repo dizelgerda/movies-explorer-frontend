@@ -4,7 +4,7 @@ function PrivateLayout({ loggedIn }) {
 
   if (loggedIn !== null) {
     if (loggedIn) return (<Outlet />);
-    return (<Navigate to="/signin" replace />)
+    return (<Navigate to="/" replace />)
   }
   return null;
 }

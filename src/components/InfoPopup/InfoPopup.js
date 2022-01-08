@@ -2,10 +2,10 @@ import './InfoPopup.css';
 
 import React from 'react';
 
-function InfoPopup({ message }) {
+function InfoPopup({ message, isSuccess }) {
 
   return (
-    <div className="info">
+    <div className="info" style={isSuccess ? {backgroundColor: 'green'} : null}>
       <p className="info__massage">{message}</p>
     </div>
   );

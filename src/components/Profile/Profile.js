@@ -45,7 +45,7 @@ function Profile({ onSubmit, onOut }) {
           ? (
             <>
               <p className="profile__error"></p>
-              <button type="submit" className="profile__button-submit">Сохранить</button>
+              <button type="submit" className="profile__button-submit" disabled={!(data.name !== currentUser.name || data.email !== currentUser.email)}>Сохранить</button>
             </>
           )
           : (
